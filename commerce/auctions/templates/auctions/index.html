@@ -1,0 +1,56 @@
+{% extends "auctions/layout.html" %}
+
+{% block title %}
+    {% if filter %}
+        Search "{{category}}"
+    {% else %}
+        {% if watchlist %}
+            Watchlist
+        {% else %}
+            Active Listings
+        {% endif %}
+    {% endif %}
+{% endblock %}
+
+{% block body %}
+    {% if filter %}
+        <h2>Listings in category: {{category}}</h2>
+    {% else %}
+        {% if watchlist %}
+            <h2>Watchlist</h2>
+        {% else %}
+            <h2>Active Listings</h2>
+        {% endif %}
+    {% endif %}
+
+    <div class="container">
+
+        <div class="row">
+        {% for listing in listings %}
+            <div class="col-xl-3 col-lg-4 col-md-12 d-flex">
+                <div class="card flex-fill">
+                    <img src="{{listing.image_url}}" class="card-img-top" alt="{{listing.title}}">
+                    <div class="card-body">
+                        <h5 class="card-title">{{listing.title}}</h5>
+                        <p class="card-text">{{listing.description}}</p>
+                        <p class="card-text">Price: ${{listing.price}}.00</p>
+                        <p class="card-text">Created {{listing.date}}</p>
+                        
+                        <a href="{% url 'listing' listing.id %}" class="btn btn-primary">Buy</a>
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            {% if filter %}
+                <h1>No listings in that category</h1>
+            {% else %}
+                {% if watchlist %}
+                    <h1>No listings are watchlisted</h1>
+                {% else %}
+                    <h1>No active listings</h1>
+                {% endif %}
+            {% endif %}
+        {% endfor %}
+        </div>
+    </div>
+{% endblock %}
