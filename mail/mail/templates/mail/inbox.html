@@ -12,6 +12,7 @@
     <hr>
 
     <div id="emails-view">
+        
     </div>
 
     <div id="compose-view">
@@ -29,6 +30,22 @@
             <textarea class="form-control" id="compose-body" placeholder="Body"></textarea>
             <input type="submit" class="btn btn-primary"/>
         </form>
+    </div>
+
+    <div id="email-view">
+        <div class="container">
+            <h6 id="email_from"><b>From: </b>${email['sender']}</h6>
+            <h6 id="email_to"><b>To: </b>${email['recipients']}</h6>
+            <h6 id="email_subject"><b>Subject: </b>${email['subject']}</h6>
+            <h6 id="email_timestamp"><b>Timestamp: </b>${email['timestamp']}</h6>
+            <button id="reply_button" class="btn btn-primary" style="display: none;">Reply</button>
+            <button id="archive_button" class="btn btn-danger" style="display: none;">Archive</button>
+            <button id="unarchive_button" class="btn btn-danger" style="display: none;">Unarchive</button>
+        </div>
+        <hr>
+        <div class="container">
+            <p id="email_body">${email['body']}</p> 
+        </div>
     </div>
 {% endblock %}
 

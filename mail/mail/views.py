@@ -9,7 +9,6 @@ from django.views.decorators.csrf import csrf_exempt
 
 from .models import User, Email
 
-
 def index(request):
 
     # Authenticated users view their inbox
@@ -24,7 +23,6 @@ def index(request):
 @csrf_exempt
 @login_required
 def compose(request):
-
     # Composing a new email must be via POST
     if request.method != "POST":
         return JsonResponse({"error": "POST request required."}, status=400)
