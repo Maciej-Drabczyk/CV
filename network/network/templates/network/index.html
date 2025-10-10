@@ -1,5 +1,27 @@
 {% extends "network/layout.html" %}
 
 {% block body %}
-    TODO
+    {{ value|json_script:"user" }}
+    <div id="all_posts">
+        <h1>All Posts</h1>
+        <div class="container">
+            {% if user.is_authenticated %}
+                <div id="new_post">
+                    <h3>New Post</h3>
+                    <form id="new_post_form">
+                        {% csrf_token %}
+                        <textarea class="form-control" rows="5"></textarea>
+                        <input type="submit" value="Post" class="btn btn-primary">
+                    </form>
+                </div>
+            {% endif %}
+            <div id="posts_list">
+
+            </div>
+        </div>
+    </div>
+
+    <div id="profile_page">
+
+    </div>
 {% endblock %}
