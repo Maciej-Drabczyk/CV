@@ -1,4 +1,7 @@
+var CurrentlyShownEmail = 0
+
 document.addEventListener('DOMContentLoaded', function() {
+
 
   // Use buttons to toggle between views
   document.querySelector('#inbox').addEventListener('click', () => load_mailbox('inbox'));
@@ -6,9 +9,9 @@ document.addEventListener('DOMContentLoaded', function() {
   document.querySelector('#archived').addEventListener('click', () => load_mailbox('archive'));
   document.querySelector('#compose').addEventListener('click', compose_email);
 
-  document.querySelector('#reply_button').addEventListener('click', () => reply_email)
-  document.querySelector('#archive_button').addEventListener('click', () => archive_email(true))
-  document.querySelector('#unarchive_button').addEventListener('click', () => archive_email(false))
+  document.querySelector('#reply_button').addEventListener('click', () => reply_email(CurrentlyShownEmail))
+        document.querySelector('#archive_button').addEventListener('click', () => archive_email(CurrentlyShownEmail, true))
+              document.querySelector('#unarchive_button').addEventListener('click', () => archive_email(CurrentlyShownEmail, false))
 
   document.querySelector('#compose-form').onsubmit = function(e) {
     e.preventDefault()
@@ -85,9 +88,7 @@ function load_mailbox(mailbox) {
 }
 
 function read_email(email, source) {
-  console.log(email.dataset.id)
   const id = email.dataset.id
-  console.log(id)
   if(source != "sent") {
     fetch(`emails/${id}`, {
       method: "PUT",
@@ -108,6 +109,7 @@ function show_email(email, source) {
     document.querySelector('#emails-view').style.display = 'none';
     document.querySelector('#email-view').style.display = 'block'
     document.querySelector('#compose-view').style.display = 'none';
+    CurrentlyShownEmail = id
     // document.querySelector('#email-view').innerHTML = `
     //   <div class="container">
     //     <h6><b>From: </b>${email['sender']}</h6>
@@ -128,21 +130,18 @@ function show_email(email, source) {
 
     if(source != 'sent') {
       document.querySelector('#reply_button').style.display = 'block'
-      document.querySelector('#reply_button').addEventListener('click', () => reply_email(email['id']))
     } else {
       document.querySelector('#reply_button').style.display = 'none'
     }
 
     if(source != 'sent' && !email['archived']) {
       document.querySelector('#archive_button').style.display = 'block'
-      document.querySelector('#archive_button').addEventListener('click', () => archive_email(email['id'], true))
     } else {
       document.querySelector('#archive_button').style.display = 'none'
     }
 
     if(source == "archive" && email['archived']) {
       document.querySelector('#unarchive_button').style.display = 'block'
-      document.querySelector('#unarchive_button').addEventListener('click', () => archive_email(email['id'], false))
     } else {
       document.querySelector('#unarchive_button').style.display = 'none'
     }
@@ -150,16 +149,18 @@ function show_email(email, source) {
 }
 
 function reply_email(id) {
+  console.log(id)
   fetch(`emails/${id}`)
   .then(response => response.json())
   .then(email => {
-    document.querySelector('#emails-view').style.display = 'none'
-    document.querySelector('#email-view').style.display = 'none'
-    document.querySelector('#compose-view').style.display = 'block'
-
+    console.log(email)
     document.querySelector('#compose-recipients').value = email['sender'];
     document.querySelector('#compose-subject').value = `Re: ${email['subject']}`;
     document.querySelector('#compose-body').value = `On ${email['timestamp']} ${email['sender']} wrote:\n"${email['body']}"\n`;
+
+    document.querySelector('#emails-view').style.display = 'none'
+    document.querySelector('#email-view').style.display = 'none'
+    document.querySelector('#compose-view').style.display = 'block'
   })
 
 }
