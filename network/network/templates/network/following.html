@@ -1,0 +1,29 @@
+{% extends 'network/layout.html' %}
+
+{% block body %}
+    {% if posts %} 
+        <h1>Posts of followed profiles:</h1>
+    {% else %}
+        <h1>You don't follow any profiles</h1>
+    {% endif %}
+    <div class="container">
+        {% for post in posts %}
+            <div class="container post">
+                <h4><a href="{% url 'profile' post.creator %}">{{post.creator}}</a></h4>
+                <p>{{post.content}}</p>
+                <h6 class="text-primary" data-id="{{post.id}}" data-type="like_count">Likes: {{post.likes}}</h6>
+                {% if user.is_authenticated %}
+                    {% if post.id in likes %}
+                        <button class="btn btn-primary like" style="display: none;" data-id="{{post.id}}" data-type="like">Like</button>
+                        <button class="btn btn-danger dislike" style="display: block;" data-id="{{post.id}}" data-type="dislike">Dislike</button>
+                    {% else %}
+                        <button class="btn btn-primary like" style="display: block;" data-id="{{post.id}}" data-type="like">Like</button>
+                        <button class="btn btn-danger dislike" style="display: none;" data-id="{{post.id}}" data-type="dislike">Dislike</button>
+                    {% endif %}
+                {% endif %}
+                <small>{{post.date}}</small>
+            </div>
+        {% endfor %}
+    </div>
+    {{ value }}
+{% endblock %}

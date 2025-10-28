@@ -1,0 +1,63 @@
+{% extends 'network/layout.html' %}
+
+{% block body %}
+    <div class="container">
+        <h1 class="text-center">{{username}}</h1>
+        <div class="d-flex justify-content-center row">
+            <div class="bg-primary col-sm-7 col-md-6 col-lg-3">
+                <h3 class="text-center">Followers</h3>
+                <h3 class="text-center" id="follows_count">{{followers_count}}</h3>
+            </div>
+            <div class="bg-warning col-sm-7 col-md-6 col-lg-3">
+                <h3 class="text-center">Follows</h3>
+                <h3 class="text-center">{{followings_count}}</h3>
+            </div>
+        </div>
+        {% if user.is_authenticated and not is_user_equal_profile %}
+            {% if profile_followed %}
+                <div class="d-flex justify-content-center">
+                    <div>
+                        <button class="btn btn-primary" id="follow_button" data-profile="{{username}}" style="display: none;">Follow</button>
+                    </div>
+                    <div>
+                        <button class="btn btn-danger" id="unfollow_button" data-profile="{{username}}" style="display: block;">Unfollow</button>
+                    </div>
+                </div>
+            {% else %}
+                <div class="d-flex justify-content-center">
+                    <div>
+                        <button class="btn btn-primary" id="follow_button" data-profile="{{username}}" style="display: block;">Follow</button>
+                    </div>
+                    <div>
+                        <button class="btn btn-danger" id="unfollow_button" data-profile="{{username}}" style="display: none;">Unfollow</button>
+                    </div>
+                </div>
+            {% endif %}
+        {% endif %}
+        <div class="container">
+            <h2>Posts of {{username}}:</h2>
+            {% for post in posts %}
+                <div class="container post">
+                    <h4><a href="{% url 'profile' post.creator %}">{{post.creator}}</a></h4>
+                    <p style="margin-bottom: 0;" data-id="{{post.id}}" data-type="post_content">{{post.content}}</p>
+                    {% if request.user.username == post.creator %}
+                        <small class="text-primary edit" data-id="{{post.id}}" data-type="edit">Edit</small>
+                        <textarea style="display: none;" data-id="{{post.id}}" data-type="post_edit"></textarea>
+                        <small style="display: none;" class="text-primary accept" data-id="{{post.id}}" data-type="accept">Accept</small>
+                    {% endif %}
+                    <h6 class="text-primary" data-id="{{post.id}}" data-type="like_count">Likes: {{post.likes}}</h6>
+                    {% if user.is_authenticated %}
+                        {% if post.id in likes %}
+                            <button class="btn btn-primary like" style="display: none;" data-id="{{post.id}}" data-type="like">Like</button>
+                            <button class="btn btn-danger dislike" style="display: block;" data-id="{{post.id}}" data-type="dislike">Dislike</button>
+                        {% else %}
+                            <button class="btn btn-primary like" style="display: block;" data-id="{{post.id}}" data-type="like">Like</button>
+                            <button class="btn btn-danger dislike" style="display: none;" data-id="{{post.id}}" data-type="dislike">Dislike</button>
+                        {% endif %}
+                    {% endif %}
+                    <small>{{post.date}}</small>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}

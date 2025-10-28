@@ -1,5 +1,42 @@
 {% extends "network/layout.html" %}
 
 {% block body %}
-    TODO
+    <div class="container">
+        <div>
+            <h1>All posts</h1>
+        </div>
+        {% if user.is_authenticated %}
+            <div class="border p-3">
+                <h3>New post</h3>
+                <form id="new_post_form">
+                    <textarea class="form-control"></textarea>
+                    <input type="submit" value="POST" class="btn btn-primary">
+                </form>
+            </div>
+        {% endif %}
+        <div class="container p-3">
+            {% for post in posts %}
+                <div class="container post">
+                    <h4><a href="{% url 'profile' post.creator %}">{{post.creator}}</a></h4>
+                    <p style="margin-bottom: 0;" data-id="{{post.id}}" data-type="post_content">{{post.content}}</p>
+                    {% if request.user.username == post.creator %}
+                        <small class="text-primary edit" data-id="{{post.id}}" data-type="edit">Edit</small>
+                        <textarea style="display: none;" data-id="{{post.id}}" data-type="post_edit"></textarea>
+                        <small style="display: none;" class="text-primary accept" data-id="{{post.id}}" data-type="accept">Accept</small>
+                    {% endif %}
+                    <h6 class="text-primary" data-id="{{post.id}}" data-type="like_count">Likes: {{post.likes}}</h6>
+                    {% if user.is_authenticated %}
+                        {% if post.id in likes %}
+                            <button class="btn btn-primary like" style="display: none;" data-id="{{post.id}}" data-type="like">Like</button>
+                            <button class="btn btn-danger dislike" style="display: block;" data-id="{{post.id}}" data-type="dislike">Dislike</button>
+                        {% else %}
+                            <button class="btn btn-primary like" style="display: block;" data-id="{{post.id}}" data-type="like">Like</button>
+                            <button class="btn btn-danger dislike" style="display: none;" data-id="{{post.id}}" data-type="dislike">Dislike</button>
+                        {% endif %}
+                    {% endif %}
+                    <small>{{post.date}}</small>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
 {% endblock %}
