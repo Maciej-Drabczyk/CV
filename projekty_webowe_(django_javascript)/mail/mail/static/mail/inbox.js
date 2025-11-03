@@ -9,10 +9,12 @@ document.addEventListener('DOMContentLoaded', function() {
   document.querySelector('#archived').addEventListener('click', () => load_mailbox('archive'));
   document.querySelector('#compose').addEventListener('click', compose_email);
 
+  // Adding events to email buttons
   document.querySelector('#reply_button').addEventListener('click', () => reply_email(CurrentlyShownEmail))
-        document.querySelector('#archive_button').addEventListener('click', () => archive_email(CurrentlyShownEmail, true))
-              document.querySelector('#unarchive_button').addEventListener('click', () => archive_email(CurrentlyShownEmail, false))
+  document.querySelector('#archive_button').addEventListener('click', () => archive_email(CurrentlyShownEmail, true))
+  document.querySelector('#unarchive_button').addEventListener('click', () => archive_email(CurrentlyShownEmail, false))
 
+  // Composing email function on submit of form
   document.querySelector('#compose-form').onsubmit = function(e) {
     e.preventDefault()
     const recipients = document.querySelector('#compose-recipients').value;
@@ -58,6 +60,7 @@ function load_mailbox(mailbox) {
   // Show the mailbox name
   document.querySelector('#emails-view').innerHTML = `<h3>${mailbox.charAt(0).toUpperCase() + mailbox.slice(1)}</h3>`;
 
+  // Load emails of correct mailbox
   fetch(`/emails/${mailbox}`)
   .then(response => response.json())
   .then(emails => {
@@ -88,6 +91,7 @@ function load_mailbox(mailbox) {
 }
 
 function read_email(email, source) {
+  // Marking email as read
   const id = email.dataset.id
   if(source != "sent") {
     fetch(`emails/${id}`, {
@@ -101,6 +105,7 @@ function read_email(email, source) {
 }
 
 function show_email(email, source) {
+  // Loading email's content
   const id = email.dataset.id
 
   fetch(`emails/${id}`)
@@ -110,24 +115,13 @@ function show_email(email, source) {
     document.querySelector('#email-view').style.display = 'block'
     document.querySelector('#compose-view').style.display = 'none';
     CurrentlyShownEmail = id
-    // document.querySelector('#email-view').innerHTML = `
-    //   <div class="container">
-    //     <h6><b>From: </b>${email['sender']}</h6>
-    //     <h6><b>To: </b>${email['recipients']}</h6>
-    //     <h6><b>Subject: </b>${email['subject']}</h6>
-    //     <h6><b>Timestamp: </b>${email['timestamp']}</h6>
-    //   </div>
-    //   <hr>
-    //   <div class="container">
-    //     <p>${email['body']}</p>
-    //   </div>
-    // `
     document.querySelector('#email_from').innerHTML = `<b>From: </b>${email['sender']}`
     document.querySelector('#email_to').innerHTML = `<b>To: </b>${email['recipients']}`
     document.querySelector('#email_subject').innerHTML = `<b>Subject: </b>${email['subject']}`
     document.querySelector('#email_timestamp').innerHTML = `<b>Timestamp: </b>${email['timestamp']}`
     document.querySelector('#email_body').innerHTML = `${email['body']}`
 
+    // Displaying proper buttons
     if(source != 'sent') {
       document.querySelector('#reply_button').style.display = 'block'
     } else {
@@ -149,6 +143,7 @@ function show_email(email, source) {
 }
 
 function reply_email(id) {
+  // Replying to email and filling certain form parts
   console.log(id)
   fetch(`emails/${id}`)
   .then(response => response.json())
@@ -166,6 +161,7 @@ function reply_email(id) {
 }
 
 function archive_email(id, toggle) {
+  // Place email to archive
   fetch(`emails/${id}`, {
     method: "PUT",
     body: JSON.stringify({
@@ -176,6 +172,7 @@ function archive_email(id, toggle) {
 }
 
 function reload_archive(archived) {
+  // Change archive buttons based on if email is archived
   if (archived) {
       document.querySelector('#archive_button').style.display = 'none'
       document.querySelector('#unarchive_button').style.display = 'block'

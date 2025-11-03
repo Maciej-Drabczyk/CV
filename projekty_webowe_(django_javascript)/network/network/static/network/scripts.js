@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
-    //All_posts
+    // Check if it is main page
     if(document.querySelector('#new_post_form') != null) {
         document.querySelector('#new_post_form').addEventListener('submit', (e) => {
             e.preventDefault()
@@ -17,7 +17,7 @@ document.addEventListener("DOMContentLoaded", () => {
         })
     }
 
-    //profile_page
+    // Check if it is profile page
     if(document.querySelector('#follow_button') != null) {
         const follow = document.querySelector('#follow_button')
         follow.addEventListener('click', () => follow_toggle(true, follow.dataset.profile))
@@ -25,22 +25,25 @@ document.addEventListener("DOMContentLoaded", () => {
         unfollow.addEventListener('click', () => follow_toggle(false, unfollow.dataset.profile))
     }
 
+    // Checking if any posts are displayed
     if(document.querySelector(".post") != null) {
         like_buttons()
     }
-
+    // Checking if any posts are user's
     if(document.querySelector(".edit") != null) {
         edit_buttons()
     }
 })
 
 function like_buttons() {
+    // Adding events to like buttons
     document.querySelectorAll('.like').forEach(like => {
         like.addEventListener('click', () => {
             like_dislike(true, like.dataset.id)
         })
     })
 
+    // Adding events to dislike buttons
     document.querySelectorAll('.dislike').forEach(dislike => {
         dislike.addEventListener('click', () => {
             like_dislike(false, dislike.dataset.id)
@@ -50,6 +53,7 @@ function like_buttons() {
 
 
 function like_dislike(toggle, id) {
+    // Sending request to like/dislike post
     fetch("/like_toggle", {
         method: "POST",
         body: JSON.stringify({
@@ -59,6 +63,7 @@ function like_dislike(toggle, id) {
     })
     .then(response => response.json())
     .then(data => {
+        // Displaying appropiate button 
         if(toggle) {
             document.querySelector(`[data-id="${id}"][data-type="like"]`).style.display = "none"
             document.querySelector(`[data-id="${id}"][data-type="dislike"]`).style.display = "block"
@@ -72,12 +77,14 @@ function like_dislike(toggle, id) {
 }
 
 function edit_buttons() {
+    // Adding event to 'edit' buttons
     document.querySelectorAll('.edit').forEach(edit => {
         edit.addEventListener('click', () => {
             edit.style.display = "none"
             start_edit_post( edit.dataset.id)
         })
     })
+    // Adding event to 'accept' buttons to confirm edit
     document.querySelectorAll('.accept').forEach(accept => {
         accept.addEventListener('click', () => {
             edit(accept.dataset.id)           
@@ -86,6 +93,7 @@ function edit_buttons() {
 }
 
 function start_edit_post(post_id) {
+    // Displaying and hiding proper parts of post for edit purposes
     const content = document.querySelector(`[data-id="${post_id}"][data-type="post_content"]`)
     content.style.display="none"
 
@@ -97,9 +105,7 @@ function start_edit_post(post_id) {
     accept.style.display="block"   
 }
 
-function edit(post_id) {
-    console.log("XD");
-    
+function edit(post_id) {   
     const content = document.querySelector(`[data-id="${post_id}"][data-type="post_content"]`)
     const textarea = document.querySelector(`[data-id="${post_id}"][data-type="post_edit"]`)
     const accept = document.querySelector(`[data-type="accept"][data-id="${post_id}"]`)
@@ -113,6 +119,7 @@ function edit(post_id) {
     })
     .then(response => response.json())
     .then(data => {
+        // Hiding edit parts of post and displaying proper parts
         accept.style.display="none"
 
         content.style.display="block"
@@ -134,6 +141,7 @@ function follow_toggle(toggle, profile) {
     })
     .then(response => response.json())
     .then(data => {
+        // Changing 'follow' and 'unfollow' buttons
         if(toggle) {
             document.querySelector("#follow_button").style.display = "none"
             document.querySelector("#unfollow_button").style.display = "block"

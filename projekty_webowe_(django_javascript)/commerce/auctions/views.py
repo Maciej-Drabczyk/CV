@@ -82,6 +82,7 @@ def register(request):
         return render(request, "auctions/register.html")
     
 def create(request):
+    # Creating new listing
     if request.method == "POST":
         form = CreateForm(request.POST)
         if form.is_valid():
@@ -92,6 +93,8 @@ def create(request):
             category = form.cleaned_data["category"]
             owner = request.user
             date = datetime.datetime.now()
+
+            # Saving listing
             listing = Listing(title=title, description=description, image_url=url, price=price, owner=owner, date=date, category=category)
             listing.save()
             return render(request, "auctions/create.html", {
@@ -103,18 +106,27 @@ def create(request):
     })
 
 def listing(request, id):
+    # Checking if request method was 'POST'
     if request.method == "POST":
+        # Check if bid was placed
         form_bid = BidForm(request.POST)
         if form_bid.is_valid():
             bid = form_bid.cleaned_data["bid"]
             listing = Listing.objects.filter(pk=id).first()
+
+            # Check if bid was high enough
             if bid > listing.price:
+
+                # Change price on a listing
                 bidding = Bid(listing=listing, offer=bid, owner = request.user)
                 bidding.save()
                 listing.price = bid
                 listing.save(update_fields=["price"])
+
+        # Check if comment was created
         form_comment = CommentForm(request.POST)
         if form_comment.is_valid():
+            # Create comment and add it to the listing
             content = form_comment.cleaned_data["content"]
             listing = Listing.objects.filter(pk=id).first()
             owner = request.user
@@ -122,10 +134,13 @@ def listing(request, id):
             comment = Comment(listing=listing, owner=owner, date=date, content=content)
             comment.save()
 
+    # Dispaly listing details
     watchlisted = None
     if Listing.objects.filter(id=id).first():
         listing = Listing.objects.get(id=id)
         Bids_Quantity = listing.bids.count()
+
+        # Check if user is logged and check if listing is watchlisted
         if request.user.is_authenticated:
             if listing.watchlisted_by.all().filter(pk=request.user.id).first():
                 watchlisted = True
@@ -149,6 +164,7 @@ def listing(request, id):
     return HttpResponseRedirect(reverse("index"))
 
 def categories(request):
+    # Creating list of categories based on all listings
     categories = {}
     listings = Listing.objects.all()
     for listing in listings:
@@ -161,6 +177,7 @@ def categories(request):
     })
     
 def category(request, name):
+    # Return listings that have certain category
     listings = Listing.objects.filter(category=name)
     return render(request, 'auctions/index.html', {
         "filter": True,
@@ -169,6 +186,7 @@ def category(request, name):
     })
 
 def watchlist(request):
+    # If user is logged returns listings that are watchlisted
     if request.user.is_authenticated:
         listings = request.user.watchlist.all()
         return render(request, 'auctions/index.html', {
@@ -180,6 +198,7 @@ def watchlist(request):
         return HttpResponseRedirect(reverse("index"))
     
 def watchlisting(request, id):
+    # Change status of watchlisting listing
     if request.user.is_authenticated:
         if Listing.objects.filter(pk=id).first():
             listing = Listing.objects.get(pk=id)

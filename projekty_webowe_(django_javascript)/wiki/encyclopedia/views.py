@@ -8,6 +8,7 @@ from markdown2 import Markdown
 from . import util
 
 def convertMarkdown(title):
+    # Returns Markdown content by entry title
     content = util.get_entry(title)
     if content == None:
         return None
@@ -61,6 +62,7 @@ def search(request):
     })
 
 def create_new(request):
+    # Check request method and form
     if request.method == "POST":
         form = CreateForm(request.POST)
         if form.is_valid():
@@ -72,7 +74,8 @@ def create_new(request):
                         "createForm": form,
                         "error": True
                     })
-            #add entry
+                
+            # Add entry
             util.save_entry(title, form.cleaned_data["content"])
             return HttpResponseRedirect(reverse("page") + title)
     return render(request, "encyclopedia/create_new.html", {

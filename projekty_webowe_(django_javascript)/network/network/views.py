@@ -11,8 +11,11 @@ from .models import User, Post
 
 
 def index(request):
+    # Get posts and order them by date
     posts = Post.objects.all()
     posts = posts.order_by('-date').all()
+
+    # Load likes of user if is logged in
     if(request.user.is_authenticated):
         likes = request.user.liked.filter()
          
@@ -25,6 +28,7 @@ def index(request):
             "posts": [post.serialize() for post in posts],
             "likes": likes
         })
+    
     return render(request, "network/index.html", {
         "posts": [post.serialize() for post in posts]
     })
@@ -85,6 +89,7 @@ def register(request):
 @login_required
 @csrf_exempt
 def new_post(request):
+    # Making sure method is correct
     if request.method == "POST":
         data = json.loads(request.body)
         content = data.get("content", "")
@@ -94,6 +99,7 @@ def new_post(request):
         )
         new_post.save()
         return JsonResponse({"message": "Posted successfully"})
+    
     return HttpResponseRedirect(reverse('index'))
 
 @login_required
@@ -117,21 +123,27 @@ def like_toggle(request):
                     post.id: post.count_likes(),
                     "message": "Post successfully disliked"})
         return JsonResponse({"message": "Error"})
+    
     return JsonResponse({"message": "Error"})
 
 def profile(request, name):
     if name == "":
         return HttpResponseRedirect(reverse('index'))
+    
+    # Finding data about profile by name
     if User.objects.filter(username=name).first():
         user = User.objects.get(username=name)
         user_posts = Post.objects.filter(creator=user).all()
         user_posts = user_posts.order_by('-date').all()
+
+        # Checking if profile belongs to logged user
         if(request.user.is_authenticated):
             
             is_user_equal_profile = True
             if(request.user != user):
                 is_user_equal_profile = False
 
+            # Getting likes for posts
             likes = set()
             for post in user_posts:
                 if request.user.liked.filter(id=post.id):
@@ -164,9 +176,13 @@ def follow_toggle(request):
         data = json.loads(request.body)
         profile_name = data.get("profile", "")
         toggle = data.get("toggle", False)
+
+        # Finding profile to follow
         if(User.objects.filter(username=profile_name).first()):
             user = request.user
             profile = User.objects.filter(username=profile_name).first()
+
+            # Toggling follow of profile
             if(toggle):
                 profile.followers.add(user)
                 return JsonResponse({
@@ -184,6 +200,7 @@ def follow_toggle(request):
 
 @login_required
 def following(request):
+    # Getting posts of followed profiles
     user = request.user
     followed = User.objects.filter(followers__id=user.id)
     followed_posts = Post.objects.filter(creator__in=followed).all()
@@ -209,14 +226,17 @@ def edit(request):
             return JsonResponse({"message": "Error"})
 
         user = request.user
+        # Finding post to edit
         if(Post.objects.filter(id=post_id).first()):
             post = Post.objects.get(id=post_id)
 
             if(post.creator != user):
                 return JsonResponse({"message": "Error"})
             
+            # Changing content of post
             post.content = new_content
             post.save()
+            
             return JsonResponse({"message": "Post edited successfully"})
 
         return JsonResponse({"message": "Error"})
